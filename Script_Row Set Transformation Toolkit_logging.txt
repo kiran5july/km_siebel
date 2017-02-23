@@ -1,0 +1,91 @@
+function Service_PreInvokeMethod (MethodName, Inputs, Outputs)
+{
+	PropertySetToFile(Inputs, "C:\\RSTT_Input.txt", ("Inputs to: " + MethodName));
+
+	return (ContinueOperation);
+}
+
+function Service_InvokeMethod (MethodName, Inputs, Outputs)
+{
+	PropertySetToFile(Outputs, "C:\\RSTT_Output.txt", ("Outputs from: " + MethodName));
+
+}
+
+
+function PropertySetToFile (PropSet, fileName, title)
+{
+	try
+	{
+		var file = Clib.fopen(fileName, "at");
+
+		LogData(("\n---------------------------------------------------"), file);
+		LogData(("Start Process  " + Clib.asctime(Clib.gmtime(Clib.time()))), file);
+		LogData(title, file);
+		LogData("PROVIDED PROPERTY SET", file);
+
+		WritePropertySet(PropSet, file, 0);
+
+		Clib.fclose(file);
+
+		return (CancelOperation);
+	}
+	catch (e)
+	{
+		// fail silently
+	}
+}
+
+
+function WritePropertySet(PropSet, file, Level)
+{
+	if ((Level == "") || (typeof(Level) == "undefined")){
+			Level = 0;
+	}
+	var indent = "";
+	for (var x = 0; x < Level; x++){
+			indent += "\t";
+	}
+
+	try
+	{
+		var psType = PropSet.GetType();
+		var psValue = PropSet.GetValue();
+		LogData((indent + "Type: " + psType + " Value: " + psValue), file);
+	}
+	catch (e)
+	{
+		LogData((indent + "BAD DATA IN PROPERTY HEADER"));
+	}
+
+	var propName = PropSet.GetFirstProperty();
+	while (propName != "")
+	{
+		try
+		{
+			var propValue = PropSet.GetProperty(propName);
+		}
+		catch (e)
+		{
+			LogData((indent + "BAD DATA IN PROPERTY DATA"));
+		}
+		LogData((indent + propName + " = " + propValue), file);
+		propName = PropSet.GetNextProperty();
+	}
+	var children = PropSet.GetChildCount();
+	for (var x = 0; x < children; x++)
+	{
+			LogData(( indent + "CHILD PROPERTY SET " + x), file);
+			WritePropertySet(PropSet.GetChild(x), file, (Level + 1));
+	}
+}
+
+function LogData(DataString, file)
+{
+	try {
+		Clib.fputs((DataString + "\n"), file);
+		Clib.fflush(file);
+	}
+	catch (e){
+			// no action
+	}
+}
