@@ -1,0 +1,55 @@
+
+
+This is taken from Client BS.
+-------------------------------
+ 
+
+function WriteIOtoFile(Inputs,Outputs)
+{
+	try
+	{ 
+		var oBS = TheApplication().GetService("EAI Siebel Adapter");
+		var psInputs = TheApplication().NewPropertySet();
+		var psFileInputs = TheApplication().NewPropertySet();
+
+		psInputs.SetProperty("OutputIntObjectName", Inputs.GetProperty("OutputIntObjectName"));
+		psInputs.SetProperty("PrimaryRowId", Inputs.GetProperty("PrimaryRowId"));
+		oBS.InvokeMethod("Query", psInputs, Outputs);
+		
+		Outputs.SetProperty("FileName",Inputs.GetProperty("FileName"));
+		Outputs.SetProperty("Tags on Separate Lines","FALSE");
+		oBS=TheApplication().GetService("EAI XML Write to File");
+		oBS.InvokeMethod("WriteEAIMsg",Outputs,Outputs);
+	}
+	catch (e)
+	{ 
+		TheApplication().RaiseErrorText("Exception:("+e.errCode+")"+e.errText);
+	}
+	finally
+	{ 
+		psInputs = null;
+		psFileInputs = null;
+		oBS = null;
+	}
+ 
+}
+
+function Service_PreInvokeMethod (MethodName, Inputs, Outputs)
+{ 
+  var bReturn=ContinueOperation;
+  switch(MethodName) 
+  { 
+     case "WriteIOtoFile":
+                WriteIOtoFile(Inputs,Outputs);
+                bReturn=CancelOperation;
+                break;
+     case "SubmitAccountBatch":
+                SubmitAccountBatch(Inputs,Outputs);
+                bReturn=CancelOperation;
+                break;
+ 
+     default: break;
+  }
+ return (bReturn);
+}
+
