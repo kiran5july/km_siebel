@@ -1,0 +1,8 @@
+		var BsSLM = TheApplication().GetService("SLM Save List Service");
+		var psInp = TheApplication().NewPropertySet();
+		var psOut = TheApplication().NewPropertySet();
+		psInp.SetProperty("Applet Height", "400");
+		psInp.SetProperty("Applet Mode", "6");                           
+		psInp.SetProperty("Applet Name", "SC Get HD Schedule List Applet");
+		psInp.SetProperty("Applet Width", "800");
+		BsSLM.InvokeMethod("LoadPopupApplet", psInp , psOut);
