@@ -1,0 +1,8 @@
+
+var fp = Clib.fopen(sLogFileName,"a");
+var fp = Clib.fopen("C:\\Siebel\\8.1\\FileSystem\\MyLog.txt",'a');
+
+
+Clib.fputs(new Date().toString()+": "+sLog+"\n", fp);
+
+Clib.fclose(fp);
