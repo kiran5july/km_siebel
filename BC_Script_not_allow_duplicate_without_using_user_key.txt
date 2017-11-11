@@ -1,0 +1,65 @@
+
+
+
+
+------------
+
+function CheckDuplicateAtt(sBOName, sBCName, sFieldName, sFieldValue)
+{
+   /*******************************************
+   * Description: Method queries for the Header if File Name already exists:
+   * Inputs:
+   *		sBOName (String) : Name of BO
+   *		sBCName (String) : Name of BC
+   *		sFieldName (String) : Name of the field that holds File Name
+   *		sFieldValue (String) : Field Value (File Name)
+   *		sOutput (boolean)	: true/false (true if record already exists)
+   * Author: SZTJC5 - 2017-05-30
+   *******************************************/
+	try
+	{
+		var boTH:BusObject = null;
+		var bcTH:BusComp = null;
+		var sOutput = true;
+
+		boTH = TheApplication().GetBusObject(sBOName);
+		bcTH = boTH.GetBusComp(sBCName);
+
+		with(bcTH)
+		{
+			ActivateField(sFieldName);
+			SetViewMode(AllView);
+			ClearToQuery();
+			//SetSearchSpec("TollFileName", sFieldValue);
+			SetSearchExpr("["+sFieldName+"]='"+ sFieldValue +"' AND [Id] <> '" + this.GetFieldValue("Id")+"'");
+			ExecuteQuery(ForwardOnly);
+			if(!FirstRecord())
+				sOutput = false;
+		}
+
+	}//end try		
+	catch(ex)
+	{
+		TheApplication().RaiseErrorText("An exception occurred in CheckDuplicateFieldVal(). \nERROR: " + ex.errText + "\nSTACK: " + ex.toString());
+	}
+	finally
+	{
+		bcTH = null;
+		boTH = null;
+		return (sOutput);
+	}
+}
+
+
+------------
+function BusComp_PreWriteRecord ()
+{
+	if(CheckDuplicateAtt(this.BusObject().Name(), this.Name(), "TollFileName", this.GetFieldValue("TollFileName") ) )
+	{
+		TheApplication().RaiseErrorText("Duplicate File Name. \n\nPlease use a different file OR rename the file name.\n");
+		//return (CancelOperation);
+	}
+	return (ContinueOperation);
+}
+
+------------
