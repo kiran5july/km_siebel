@@ -1,0 +1,30 @@
+
+
+
+
+Method#1: using clib functions
+
+var fp = Clib.fopen("C:\\Siebel\\8.1\\FileSystem\\MyLog.txt",'a');
+
+Clib.fputs(new Date().toString()+": WriteIOtoFile.\n", fp);
+
+Clib.fputs(new Date().toString()+": "+sLog+"\n", fp);
+
+Clib.fclose(fp);
+
+-----------------
+
+Method#2: usinf trace
+
+//Trace initialization
+		//var traceFileName:String = Inputs.GetProperty("TraceFileName");
+		//var traceType:String = Inputs.GetProperty("TraceType");
+		//var traceSelection:String = Inputs.GetProperty("TraceSelection");
+		//TheApplication().TraceOn(traceFileName, traceType, traceSelection);
+
+		//TheApplication().TraceOn("E:\\Siebel\\15.0.0.0.0\\ses\\siebsrvr\\TEMP\\trace_$p_$t.txt", "Allocation", "All");
+		//TheApplication().TraceOn("C:\\TEMP\\km_trace_process_tickets_" + GetDate4FileName() + "_$p_$t.txt", "Allocation", "All");
+		//TheApplication().Trace("Start of tracing!");
+		
+------------------
+
