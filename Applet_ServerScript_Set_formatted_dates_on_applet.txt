@@ -1,0 +1,61 @@
+
+Applet:
+
+Control for :
+	Field: RC Start Date
+		Display Format: MM/DD/YYYY 00:00:00
+	Field: Charge End Date
+		Display Format: MM/DD/YYYY 23:59:59
+
+
+
+-----
+
+function WebApplet_InvokeMethod (MethodName)
+{
+	/* Ensure that the RC Start Date is always with a time of 00:00:00
+	   and RC End Date is always with a time value of 11:59:59 PM
+
+	*/
+	
+	try
+	{
+
+		if(MethodName == "WriteRecord")
+		{
+			var aInpDate:Array = new Array();
+			var bDatesUpdated = false;
+			
+			var sRCStartDt = this.BusComp().GetFieldValue("RC Start Date");
+			if (sRCStartDt != "")
+			{
+				aInpDate = sRCStartDt.split(' ');
+				if(aInpDate[1] != "00:00:00")
+				{
+					this.BusComp().SetFieldValue("RC Start Date", aInpDate[0]+" 00:00:00");
+					bDatesUpdated = true;
+				}
+			}
+			
+			var sChargeEndDt = this.BusComp().GetFieldValue("Charge End Date");
+			if (sChargeEndDt != "")
+			{
+				aInpDate = sChargeEndDt.split(' ');
+				if(aInpDate[1] != "23:59:59")
+				{
+					this.BusComp().SetFieldValue("Charge End Date", aInpDate[0]+" 23:59:59");
+					bDatesUpdated = true;
+				}
+			}
+			if(bDatesUpdated)
+				this.BusComp().WriteRecord();
+		}//end WriteRecord
+
+	}catch(ex){
+		TheApplication().RaiseErrorText("Exception in Invoice Plan: " + ex.toString() );
+	}finally{
+		aInpDate = null;
+	}
+}
+
+
