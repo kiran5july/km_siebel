@@ -1,0 +1,41 @@
+
+
+#Add a record to an MVG field 
+	BC: Channel Partner
+		MVG Field: Partner Type
+			BC: Partner Type
+
+
+---------------
+
+		var boPartner:BusObject = TheApplication().GetBusObject("Channel Partner");
+		var bcPartner:BusComp = boPartner.GetBusComp("Channel Partner");
+		
+		
+			var bcPartnerType:BusComp = bcPartner.GetMVGBusComp("Partner Type");
+					
+			bRecFound = bcPartner.FirstRecord();
+			while (bRecFound)
+			{
+				sDealerId = bcPartner.GetFieldValue("Id");
+				//TheApplication().Trace(">----> >----> sDealerId=" + sDealerId + "; Name=" + bcPartner.GetFieldValue("Name")+ "; .......... ");
+				
+				bcPartnerType.ActivateField("Partner Type");
+				bcPartnerType.ClearToQuery();
+				bcPartnerType.SetViewMode(AllView);
+				bcPartnerType.SetSearchSpec("Partner Type", sPartnerType);
+				bcPartnerType.ExecuteQuery(ForwardOnly);
+				bPartnerTypeRecFound = bcPartnerType.FirstRecord();
+				if (!bPartnerTypeRecFound)
+				{
+					// Insert new MVG record for this object
+					bcPartnerType.NewRecord(NewAfter);
+					bcPartnerType.SetFieldValue("Partner Type", sPartnerType);
+					//sPrimaryPartnerTypeId = bcPartnerType.GetFieldValue("Id");
+					//bcPartner.SetFieldValue("Primary Partner Type Id", sPrimaryPartnerTypeId);
+					bcPartnerType.WriteRecord();
+				}
+			
+				bcPartner.WriteRecord();
+				
+---------------------
