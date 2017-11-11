@@ -1,0 +1,104 @@
+
+
+
+Applet: GMvn Toll Bill List Applet
+---------------------------
+Scenario: 
+	BrowserScript: Open a file picket (html file), take the file name & set in ProfileAttr.
+	serverscript: reads the ProfileAttr
+
+
+------------------------
+BrowserScript
+
+function Applet_PreInvokeMethod (name, inputPropSet)
+{
+   /*******************************************
+   * Description: Method to popup a HTML file for user to browse a data file
+   * Output:
+   *        ProfileAttr("FILEP") (String) : The file name selected
+   * Author: SZTJC5
+   *******************************************/
+	try
+	{
+		switch(name)
+		{
+			case "BrowseFile":
+				var ShowModalOptions= "dialogHeight:150px;dialogLeft:120px;dialogWidth:450px;center:yes";
+				var sFileSelected = theApplication().ShowModalDialog("FilePicker.htm", "", ShowModalOptions);
+				if(sFileSelected != "")
+				{
+					//alert("File selected: " + sFileSelected);
+					theApplication().SetProfileAttr("FILEP", sFileSelected);
+				}//else alert("File not selected");
+				//return ("CancelOperation");
+				break;
+		}
+	}catch(ex)
+	{
+		alert("Exception in BS: " + ex.toString());
+	}
+	finally
+	{
+		bcTBHeader = null;
+	}
+	
+	return ("ContinueOperation");
+}
+
+-----------------------
+
+run Genbscript
+c:\Siebel\15.0.0.0.0\Client\BIN\genbscript "C:\Siebel\15.0.0.0.0\Client\BIN\enu\sfs.cfg" "C:\Siebel\15.0.0.0.0\Client\PUBLIC\enu" ENU
+
+-----------------------
+ServerScript:
+
+function WebApplet_PreInvokeMethod (MethodName)
+{
+   /*******************************************
+   * Description: Method creates new Toll Bill header record when file name is passed
+   * Inputs:
+   *        ProfileAttr("FILEP") (String) : file name selected on UI
+   * Author: SZTJC5
+   *******************************************/
+	//var bReturn = ContinueOperation;
+
+	try
+	{
+	var bcTBHeader:BusComp = null;
+	switch(MethodName)
+	{
+		case "BrowseFile":
+			var sFileSelected = TheApplication().GetProfileAttr("FILEP");
+			if(sFileSelected != "")
+			{
+				bcTBHeader = this.BusComp();
+				bcTBHeader.NewRecord(NewBefore);
+				bcTBHeader.SetFieldValue("Name", sFileSelected);
+				//TheApplication().RaiseErrorText("File : " + sFileSelected);
+			}
+			else 
+				TheApplication().RaiseErrorText("No File selected.");
+
+			return(CancelOperation);
+			break;
+		default: 
+			break;
+
+	}
+
+
+	}catch(ex)
+	{
+		TheApplication().RaiseErrorText(ex.errText);
+	}
+	finally
+	{
+		bcTBHeader = null;
+		TheApplication().SetProfileAttr("FILEP", "");
+	}
+	return (ContinueOperation);
+}
+
+
